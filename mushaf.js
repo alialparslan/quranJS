@@ -2,6 +2,18 @@
 const fs = require("fs");
 const path = require("path");
 const utils = require("./utils");
+const {Num} = require("./types")
+
+const policies = {
+    // Whether basmalas without ayat number will be omitted or counted in calculations
+    includeBasmalas : false,
+}
+
+module.exports.setStandardPolicy = function(policyName, value){
+    if(policies[policyName] && typeof value == typeof policies[policyName]){
+        policies[policyName] = value
+    }
+}
 
 class verseRange{
     constructor(mushaf, startSurah, startVerse, endSurah, endVerse){
@@ -11,11 +23,11 @@ class verseRange{
         this.startVerse = startVerse
         this.endVerse = endVerse
         
-        this.includeZero = false
+        this.includeZero = policies.includeBasmalas
         this.updateCount()
     }
 
-    zerothPolicy(countOrNot){
+    setBasmalaPolicy(countOrNot){
         let oldPolicy = this.includeZero
         this.includeZero = countOrNot
         if(oldPolicy != countOrNot) this.updateCount();
@@ -58,6 +70,10 @@ class verseRange{
             }
         }
     }
+
+    abjad(){
+
+    }
 }
 
 class Verse{
@@ -66,7 +82,7 @@ class Verse{
         this.verse = verse
     }
     abjad(){
-        return utils.calcAbjad(this.verse)
+        return new Num(utils.calcAbjad(this.verse))
     }
 }
 
@@ -81,6 +97,15 @@ class Surah{
         if(typeof this.verses[no] == 'string') this.verses[no] = new Verse(no, this.verses[no]);
         return this.verses[no]
     }
+    // There is no validity check for params
+    abjad(firstVerse = 0, lastVerse){
+        if(lastVerse == undefined) lastVerse = this.count;
+        let total = 0
+        for(let i = firstVerse; i <= lastVerse; i++){
+            total += this.verses[i].abjad()
+        }
+        return new Num(total)
+    }
 }
 
 class Mushaf{
@@ -91,10 +116,21 @@ class Mushaf{
             this.surahs.push(new Surah(i+1, verseArr));
         })
     }
-
+    
     getSurah(no){
         if(no < 1 || no > 114) throw new Error("Surah not found!");
         return this.surahs[no-1]
+    }
+    
+    forEach(func){
+        this.surahs.forEach( (surah, i) => {
+            func(surah)
+        })
+    }
+    abjad(){
+        let val = 0
+        this.forEach( surah => val += surah.abjad())
+        return new Num(val)
     }
 
     select(selector){
