@@ -106,12 +106,22 @@ class verseRange extends policyManager{
 }
 
 class Verse{
-    constructor(no, verse){
+    constructor(surah, no, verse){
+        this.surah = surah
         this.no = no
         this.verse = verse
     }
     abjad(){
         return new Num(utils.calcAbjad(this.verse))
+    }
+    letterCount(){
+        return new Num(utils.countLetters(this.verse))
+    }
+    wordCount(){
+        return new Num(utils.countWords(this.verse))
+    }
+    search(text){
+        return this.verse.search(text)
     }
 }
 
@@ -124,7 +134,7 @@ class Surah extends policyManager{
         this.verses = verses
         for(let i = 0; i < this.verses.length; i++){
             if(typeof this.verses[i] == 'string'){
-                this.verses[i] = new Verse(i, this.verses[i]);
+                this.verses[i] = new Verse(this, i, this.verses[i]);
             }
         }
         this.count = verses.length-1 // -1 for numberless verse
@@ -148,6 +158,12 @@ class Surah extends policyManager{
         let total = 0
         this.forEach(verse => total += verse.abjad(), firstVerse, lastVerse)
         return new Num(total)
+    }
+    search(text, arr = []){
+        this.forEach( verse => {
+            if(verse.search(text) != -1) arr.push(verse)
+        })
+        return arr
     }
 }
 
@@ -175,6 +191,10 @@ class Mushaf extends policyManager{
         let val = 0
         this.forEach( surah => val += surah.abjad())
         return new Num(val)
+    }
+    search(text, arr = []){
+        this.forEach( surah => surah.search(text, arr))
+        return arr
     }
 
     select(selector){
@@ -243,6 +263,10 @@ class Mushafs extends policyManager{
             throw new Error("Paramater mushaf should be instance of Mushaf")
     }
 
+    forEach(func){
+        this.mushafs.forEach(func)
+    }
+    
     select(selector){
         if(typeof selector == 'number'){
             if(selector < 0 || selector > this.mushafs.length) return false;

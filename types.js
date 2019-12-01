@@ -22,6 +22,7 @@ class Num extends Number{
     primes(){
         return primeFactors(this)
     }
+
 }
 
 module.exports = {Num}
