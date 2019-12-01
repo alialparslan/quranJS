@@ -9,7 +9,7 @@ let basmala = tanzilSimple.select("1:1")
 //console.log(mushafs.select(['tanzil-simple','tanzil-simplea']))
 
 let range = tanzilSimple.select('1-114')
-range.zerothPolicy(true)
+//range.zerothPolicy(true)
 console.log(basmala.abjad())
 
 let count = 0

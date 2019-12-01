@@ -9,7 +9,8 @@ const policies = {
     includeBasmalas : false,
 }
 
-module.exports.setStandardPolicy = function(policyName, value){
+// Does not effects objects created before change
+module.exports.setPolicy = function(policyName, value){
     if(policies[policyName] && typeof value == typeof policies[policyName]){
         policies[policyName] = value
     }
@@ -72,7 +73,9 @@ class verseRange{
     }
 
     abjad(){
-
+        let total = 0
+        this.forEach( verse => total += verse.abjad())
+        return new Num(total)
     }
 }
 

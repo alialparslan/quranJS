@@ -1,5 +1,6 @@
 # It is not ready for use yet!
-Warning: Current abjad calculator function not working properly because of characters like superscript Elif.
+**Warning: Current abjad calculator function not working properly because of characters like superscript Elif.**
+
 You can request any functionality you want over [github](https://github.com/alialparslan/quranJS/labels/enhancement).
 
     npm install quranjs
