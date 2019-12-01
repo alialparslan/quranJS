@@ -29,7 +29,7 @@ class verseRange{
             if(this.includeZero && (i != 1 && i != 9)) this.count++;
         }
         if(this.endSurah > this.startSurah){
-            if(this.endSurah != 1 && this.endSurah != 9) this.count++;
+            if(this.includeZero && this.endSurah != 1 && this.endSurah != 9) this.count++;
             this.count += this.endVerse;
         }
     }
@@ -39,6 +39,9 @@ class Verse{
     constructor(no, verse){
         this.no = no
         this.verse = verse
+    }
+    abjad(){
+        return utils.calcAbjad(this.verse)
     }
 }
 
@@ -50,8 +53,8 @@ class Surah{
     }
     getVerse(no){
         if(no > this.count) throw new Error("Out of verse range!");
-        if(typeof this.verses[no-1] == 'string') this.verses[no-1] = new Verse(no, this.verses[no-1]);
-        return this.verses[no-1]
+        if(typeof this.verses[no] == 'string') this.verses[no] = new Verse(no, this.verses[no]);
+        return this.verses[no]
     }
 }
 
@@ -111,7 +114,7 @@ class Mushaf{
         }
         if(startVerse && startVerse > this.surahs[startSurah-1].count) throw new Error("Out of verse range");
         if(endVerse && endVerse > this.surahs[endSurah-1].count) throw new Error("Out of verse range");
-
+        console.log(startSurah,endSurah,startVerse,endVerse)
         if(!endSurah) return this.surahs[startSurah-1].getVerse(startVerse)
         return new verseRange(this, startSurah, startVerse, endSurah, endVerse)
     }
