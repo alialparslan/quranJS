@@ -1,6 +1,6 @@
 {
   "name": "quranjs",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Utility that makes easier to access Quran verses and experimenting with verses and their attributes",
   "main": "index.js",
   "scripts": {
