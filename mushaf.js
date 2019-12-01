@@ -10,6 +10,35 @@ class verseRange{
         this.endSurah = endSurah
         this.startVerse = startVerse
         this.endVerse = endVerse
+        
+        this.includeZero = false
+        this.updateCount()
+    }
+
+    countZeros(countOrNot){
+        let oldPolicy = this.includeZero
+        this.includeZero = countOrNot
+        if(oldPolicy != countOrNot) this.updateCount();
+    }
+
+    updateCount(){
+        this.count = this.mushaf.surahs[this.startSurah-1].count-this.startVerse+1
+        if(!this.includeZero && this.startVerse == 0) this.count--;
+        for(let i = this.startSurah+1; i < this.endSurah; i++){
+            this.count += this.mushaf.surahs[i-1].count
+            if(this.includeZero && (i != 1 && i != 9)) this.count++;
+        }
+        if(this.endSurah > this.startSurah){
+            if(this.endSurah != 1 && this.endSurah != 9) this.count++;
+            this.count += this.endVerse;
+        }
+    }
+}
+
+class Verse{
+    constructor(no, verse){
+        this.no = no
+        this.verse = verse
     }
 }
 
@@ -18,6 +47,11 @@ class Surah{
         this.no = no
         this.verses = verses
         this.count = verses.length-1 // -1 for numberless verse
+    }
+    getVerse(no){
+        if(no > this.count) throw new Error("Out of verse range!");
+        if(typeof this.verses[no-1] == 'string') this.verses[no-1] = new Verse(no, this.verses[no-1]);
+        return this.verses[no-1]
     }
 }
 
@@ -30,6 +64,11 @@ class Mushaf{
         })
     }
 
+    getSurah(no){
+        if(no < 1 || no > 114) throw new Error("Surah not found!");
+        return this.surahs[no-1]
+    }
+
     select(selector){
         if(typeof selector == 'string' && /^\d+$/.test(selector)) selector = parseInt(selector);
         if(typeof selector == 'number'){
@@ -40,17 +79,40 @@ class Mushaf{
         let match = selector.match(/^(?<startSurah>\d+)(?::(?<startVerse>\d+))?(?:(?<hypen>-)(?:(?<endSurah>\d+)(?::(?<endVerse>\d+))?)?)?$/)
         if(!match) throw new Error("Ill-formated selector! It should be like 23:25-46:10 or 23-46:10 or 23-46 ...")
         let groups = match.groups
-        let startSurah = groups.startSurah ? groups.startSurah : false
-        let startVerse = groups.startVerse ? groups.startVerse : false
-        let endSurah = groups.endSurah ? groups.endSurah : false
-        let endVerse = groups.endVerse ? groups.endVerse : false
+        let startSurah = groups.startSurah != undefined ? parseInt(groups.startSurah) : false
+        let startVerse = groups.startVerse != undefined ? parseInt(groups.startVerse) : false
+        let endSurah = groups.endSurah != undefined ? parseInt(groups.endSurah) : false
+        let endVerse = groups.endVerse != undefined ? parseInt(groups.endVerse) : false
+        let hypen = groups.hypen ? true : false
+        // hypen without endSurah means go until the end
         if(hypen && !endSurah) endSurah == 114;
+        // Check for surah boundaries
         if(startSurah < 1 || startSurah > 114 || (endSurah && (endSurah < 1 || endSurah > 114))) 
-            return new Error("Out of ranges of surahs!");
-        if(startVerse){
+            throw new Error("Out of range of surahs!");
+        if(startVerse === false) startVerse = 0;
+        if( (startSurah == 1 || startSurah == 9) && startVerse === 0) startVerse = 1;
+        if(endSurah){
+            if( (endSurah == 1 || endSurah == 9) && endVerse === 0){
+                endSurah--;
+                endVerse = false;
+            }
+            if(endSurah < startSurah) throw new Error("Starting Surah no cannot be greater than ending!");
+            
+            if(endVerse === false) endVerse = this.surahs[endSurah-1].count;
+            
+            if(startSurah == endSurah){
+                if(startVerse > endVerse) throw new Error("Ending verse number has to be greater than starting verse in case where ending and starting surahs are same!")
+                if(startVerse == endVerse){
+                    endSurah = false
+                    endVerse = false
+                }
+            }
             
         }
-        if(!endSurah) return 
+        if(startVerse && startVerse > this.surahs[startSurah-1].count) throw new Error("Out of verse range");
+        if(endVerse && endVerse > this.surahs[endSurah-1].count) throw new Error("Out of verse range");
+
+        if(!endSurah) return this.surahs[startSurah-1].getVerse(startVerse)
         return new verseRange(this, startSurah, startVerse, endSurah, endVerse)
     }
 }
@@ -112,10 +174,19 @@ tanzil.loadFile = function(filePath){
             let verseNo = splitVerse[1]
             let verse = splitVerse[2].replace(/\s+$/,'')
             //console.log({verse})
-            if(verseNo == 1 && (surahNo == 1 || surahNo == 9)){
-                verses[surahNo-1].push(false)
-            }
-            verses[surahNo-1].push(verse)
+            if(verseNo == 1){
+                if(surahNo == 1 || surahNo == 9){
+                    verses[surahNo-1].push(false)
+                    verses[surahNo-1].push(verse)
+                }else{
+                    let split = verse.split(/(?<=^(?:[^ ]+ ){3}[^ ]+) /u)
+                    if(split.length != 2) throw new Error("Couldn't split basmala!");
+                    verses[surahNo-1].push(split[0])
+                    verses[surahNo-1].push(split[1])
+                }
+            }else{
+                verses[surahNo-1].push(verse)
+            }   
         }
     })
     return new Mushaf(path.basename(filePath).replace(/\.[^.]+$/,'').replace(/^quran/,'tanzil'), verses);
