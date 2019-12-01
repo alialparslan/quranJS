@@ -10,54 +10,80 @@ const policies = {
 }
 
 // Does not effects objects created before change
-module.exports.setPolicy = function(policyName, value){
-    if(policies[policyName] && typeof value == typeof policies[policyName]){
+module.exports.setPolicy = (policyName, value) => {
+    if(policies[policyName] != undefined && typeof value == typeof policies[policyName]){
         policies[policyName] = value
+    }else{
+        throw new Error("Policy doesn't exists or wrong type for value!")
     }
 }
 
-class verseRange{
+class policyManager{
+    constructor(){
+        this.setPolicies = {}
+    }
+    setPolicy(name, value){
+        if(policies[name]) this.setPolicies[name] = value
+        else throw new Error("No such policy!")
+    }
+    getPolicy(name){
+        if(this.setPolicies[name] != undefined) return this.setPolicies[name];
+        if(this.parent) return this.parent.getPolicy(name);
+        if(policies[name] != undefined) return policies[name];
+        throw new Error("No such policy!")
+    }
+    getAllPolicies(){
+        let objsPolicies
+        if(this.parent){
+            objsPolicies = this.parent.getAllPolicies()
+        }else{
+            objsPolicies = { ...policies}
+        }
+        // First get a copy of parents policies then override the ones that exists also in itself
+        Object.keys(this.setPolicies).forEach( name => {
+            objsPolicies[name] = this.setPolicies[name]
+        })
+        return objsPolicies
+    }
+}
+
+class verseRange extends policyManager{
     constructor(mushaf, startSurah, startVerse, endSurah, endVerse){
+        super()
         this.mushaf = mushaf
         this.startSurah = startSurah
         this.endSurah = endSurah
         this.startVerse = startVerse
         this.endVerse = endVerse
-        
-        this.includeZero = policies.includeBasmalas
         this.updateCount()
     }
 
-    setBasmalaPolicy(countOrNot){
-        let oldPolicy = this.includeZero
-        this.includeZero = countOrNot
-        if(oldPolicy != countOrNot) this.updateCount();
-    }
-
     updateCount(){
+        let includeBasmalas = this.getPolicy("includeBasmalas")
         this.count = this.mushaf.surahs[this.startSurah-1].count-this.startVerse+1
-        if(!this.includeZero && this.startVerse == 0) this.count--;
+        if(!includeBasmalas && this.startVerse == 0) this.count--;
         for(let i = this.startSurah+1; i < this.endSurah; i++){
             this.count += this.mushaf.surahs[i-1].count
-            if(this.includeZero && (i != 1 && i != 9)) this.count++;
+            if(includeBasmalas && (i != 1 && i != 9)) this.count++;
         }
         if(this.endSurah > this.startSurah){
-            if(this.includeZero && this.endSurah != 1 && this.endSurah != 9) this.count++;
+            if(includeBasmalas && this.endSurah != 1 && this.endSurah != 9) this.count++;
             this.count += this.endVerse;
         }
     }
 
     // Will be called with arguments: Verse, surahNo, verseNo
     forEach(func){
+        let includeBasmalas = this.getPolicy("includeBasmalas")
         let surah = this.mushaf.getSurah(this.startSurah)
         let startVerse = this.startVerse
-        if(startVerse == 0 && !this.includeZero) startVerse++;
+        if(startVerse == 0 && !includeBasmalas) startVerse++;
         for(let i = startVerse; i <= surah.count ; i++){
             func(surah.getVerse(i), surah.no, i)
         }
         for(let i = this.startSurah+1; i < this.endSurah; i++){
             surah = this.mushaf.getSurah(i)
-            if(this.includeZero && surah.getVerse(0)) func(surah.getVerse, i, 0)
+            if(includeBasmalas && surah.getVerse(0)) func(surah.getVerse, i, 0)
             for(let v =1; v <= surah.count; v++){
                 func(surah.getVerse(v), i, v)
             }
@@ -65,7 +91,7 @@ class verseRange{
         if(this.endSurah > this.startSurah){
             let surah = this.mushaf.getSurah(this.endSurah)
             let v = 1;
-            if(this.includeZero && surah.getVerse(0)) v = 0;
+            if(includeBasmalas && surah.getVerse(0)) v = 0;
             for(; v <= this.endVerse; v++){
                 func(surah.getVerse(v), this.endSurah, v)
             }
@@ -89,34 +115,49 @@ class Verse{
     }
 }
 
-class Surah{
-    constructor(no, verses){
+class Surah extends policyManager{
+    constructor(mushaf, no, verses){
+        super()
+        this.mushaf = mushaf
+        this.parent = this.mushaf
         this.no = no
         this.verses = verses
+        for(let i = 0; i < this.verses.length; i++){
+            if(typeof this.verses[i] == 'string'){
+                this.verses[i] = new Verse(i, this.verses[i]);
+            }
+        }
         this.count = verses.length-1 // -1 for numberless verse
     }
     getVerse(no){
         if(no > this.count) throw new Error("Out of verse range!");
-        if(typeof this.verses[no] == 'string') this.verses[no] = new Verse(no, this.verses[no]);
         return this.verses[no]
+    }
+    // func will called with arguments: Verse, surahNo, verseNo
+    forEach(func, firstVerse = 0, lastVerse){
+        if(lastVerse == undefined) lastVerse = this.count;
+        if(firstVerse < 0) throw new Error("first verse number has to be greater than zero!")
+        let includeBasmalas = this.getPolicy("includeBasmalas")
+        if(firstVerse == 0 && ( !includeBasmalas || this.no == 1 || this.no == 9)) firstVerse = 1;
+        for(let i = firstVerse; i <= lastVerse; i++){
+            func(this.verses[i], this.no, i)
+        }
     }
     // There is no validity check for params
     abjad(firstVerse = 0, lastVerse){
-        if(lastVerse == undefined) lastVerse = this.count;
         let total = 0
-        for(let i = firstVerse; i <= lastVerse; i++){
-            total += this.verses[i].abjad()
-        }
+        this.forEach(verse => total += verse.abjad(), firstVerse, lastVerse)
         return new Num(total)
     }
 }
 
-class Mushaf{
+class Mushaf extends policyManager{
     constructor(name, verses){
+        super()
         this.name = name
         this.surahs = []
         verses.forEach( (verseArr,i) => {
-            this.surahs.push(new Surah(i+1, verseArr));
+            this.surahs.push(new Surah(this, i+1, verseArr));
         })
     }
     
@@ -184,21 +225,24 @@ class Mushaf{
     }
 }
 
-class Mushafs{
+class Mushafs extends policyManager{
     constructor(){
+        super()
         this.mushafs = []
     }
     add(mushaf){
         if(mushaf instanceof Mushaf){
-            if(this.select(mushaf.name) == false)
+            if(this.select(mushaf.name) == false){
+                mushaf.parent = this
                 this.mushafs.push(mushaf);
-            else{
+            }else{
                 console.log(this.select(mushaf.name))
                 throw new Error("A mushaf with same name exists!");
             }
         }else
             throw new Error("Paramater mushaf should be instance of Mushaf")
     }
+
     select(selector){
         if(typeof selector == 'number'){
             if(selector < 0 || selector > this.mushafs.length) return false;

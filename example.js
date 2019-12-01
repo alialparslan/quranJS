@@ -2,7 +2,7 @@
 const mushaf = require(".").mushaf;
 const {Num} = require('./types')
 let mushafs = mushaf.tanzil.loadDir("data/mushafs")
-
+mushaf.setPolicy("includeBasmalas", true)
 let tanzilSimple = mushafs.select('tanzil-simple')
 
 let basmala = tanzilSimple.select("1:1")
