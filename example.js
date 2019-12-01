@@ -22,8 +22,18 @@ range.forEach( (verse, surahNo, verseNo) => {
 console.log(tanzilSimple.abjad().primes(), tanzilSimple.select(96).abjad().primes())
 //console.log(tanzilSimple.getSurah(9))
 
-
+mushafs = mushafs.pick(['tanzil-simple-clean', 'tanzil-uthmani', 'tanzil-uthmani-min', 'Diyanet-3'])
 mushafs.forEach( mushaf => {
+    console.log("\n--------------------------------------------------------------------\n")
+    console.log(mushaf.name,':')
+
+    mushaf.forEach( surah => {
+        let abjad = surah.abjad()
+        let wordCount = surah.wordCount()
+        console.log(surah.no, "abjad:", abjad.primes().join(' x '), '; word count:', wordCount.primes().join(' x '))
+    })
+
     let abjad = mushaf.abjad()
-    console.log(mushaf.name, abjad.valueOf(), abjad.primes().join('x'))
+    let wordCount = mushaf.wordCount()
+    console.log("Total:", abjad.valueOf(), abjad.primes().join(' x '), '; word count:', wordCount.valueOf(), wordCount.primes().join(' x '))
 })

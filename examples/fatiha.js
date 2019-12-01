@@ -4,7 +4,7 @@ const Num = require("../types").Num;
 
 let mushafs = mushaf.tanzil.loadDir("data/mushafs")
 
-let tanzilSimple = mushafs.select('tanzil-uthmani')
+let tanzilSimple = mushafs.pick('tanzil-uthmani')
 
 let fatiha = tanzilSimple.select(1)
 

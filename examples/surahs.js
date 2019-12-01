@@ -5,7 +5,7 @@ try {
 }
 
 let mushafs = mushaf.tanzil.loadDir("data/mushafs")
-let tanzilSimple = mushafs.select('tanzil-simple')
+let tanzilSimple = mushafs.pick('tanzil-simple')
 
 
 let oddSurahCount = 0
