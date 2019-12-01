@@ -15,7 +15,7 @@ class verseRange{
         this.updateCount()
     }
 
-    countZeros(countOrNot){
+    zerothPolicy(countOrNot){
         let oldPolicy = this.includeZero
         this.includeZero = countOrNot
         if(oldPolicy != countOrNot) this.updateCount();
@@ -31,6 +31,31 @@ class verseRange{
         if(this.endSurah > this.startSurah){
             if(this.includeZero && this.endSurah != 1 && this.endSurah != 9) this.count++;
             this.count += this.endVerse;
+        }
+    }
+
+    // Will be called with arguments: Verse, surahNo, verseNo
+    forEach(func){
+        let surah = this.mushaf.getSurah(this.startSurah)
+        let startVerse = this.startVerse
+        if(startVerse == 0 && !this.includeZero) startVerse++;
+        for(let i = startVerse; i <= surah.count ; i++){
+            func(surah.getVerse(i), surah.no, i)
+        }
+        for(let i = this.startSurah+1; i < this.endSurah; i++){
+            surah = this.mushaf.getSurah(i)
+            if(this.includeZero && surah.getVerse(0)) func(surah.getVerse, i, 0)
+            for(let v =1; v <= surah.count; v++){
+                func(surah.getVerse(v), i, v)
+            }
+        }
+        if(this.endSurah > this.startSurah){
+            let surah = this.mushaf.getSurah(this.endSurah)
+            let v = 1;
+            if(this.includeZero && surah.getVerse(0)) v = 0;
+            for(; v <= this.endVerse; v++){
+                func(surah.getVerse(v), this.endSurah, v)
+            }
         }
     }
 }
