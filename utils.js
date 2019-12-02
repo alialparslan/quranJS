@@ -17,7 +17,7 @@ const specialLetters = {
     '\u0625' : "ا", // ARABIC LETTER ALEF WITH HAMZA BELOW
     '\u0626' : "ي", // ARABIC LETTER YEH WITH HAMZA ABOVE
     '\u0671' : "ا", // ARABIC LETTER ALEF WASLA
-    //'\u0621' : 1,
+    '\u0621' : 1,
     '\u0629' :  abjadValues[4], // ARABIC LETTER TEH MARBUTA
     '\u0649' :  abjadValues[9], // ARABIC LETTER ALEF MAKSURA
 }
