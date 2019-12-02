@@ -6,7 +6,7 @@ const {Num} = require("./types")
 
 const policies = {
     // Whether basmalas without ayat number will be omitted or counted in calculations
-    includeBasmalas : false,
+    includeBasmalas : true,
 }
 
 // Does not effects objects created before change
@@ -44,6 +44,15 @@ class policyManager{
             objsPolicies[name] = this.setPolicies[name]
         })
         return objsPolicies
+    }
+}
+
+
+// For search matches
+class Match{
+    constructor(verse, count){
+        this.verse = verse
+        this.count = count
     }
 }
 
@@ -159,6 +168,16 @@ class Surah extends policyManager{
         this.forEach(verse => total += verse.abjad(), firstVerse, lastVerse)
         return new Num(total)
     }
+    letterCount(){
+        let val = 0
+        this.forEach(verse => val += verse.letterCount())
+        return new Num(val)
+    }
+    wordCount(){
+        let val = 0
+        this.forEach(verse => val += verse.wordCount())
+        return new Num(val)
+    }
     search(text, arr = []){
         this.forEach( verse => {
             if(verse.search(text) != -1) arr.push(verse)
@@ -190,6 +209,16 @@ class Mushaf extends policyManager{
     abjad(){
         let val = 0
         this.forEach( surah => val += surah.abjad())
+        return new Num(val)
+    }
+    letterCount(){
+        let val = 0
+        this.forEach(surah => val += surah.letterCount())
+        return new Num(val)
+    }
+    wordCount(){
+        let val = 0
+        this.forEach(surah => val += surah.wordCount())
         return new Num(val)
     }
     search(text, arr = []){
@@ -252,11 +281,10 @@ class Mushafs extends policyManager{
     }
     add(mushaf){
         if(mushaf instanceof Mushaf){
-            if(this.select(mushaf.name) == false){
+            if(this.pick(mushaf.name) == false){
                 mushaf.parent = this
                 this.mushafs.push(mushaf);
             }else{
-                console.log(this.select(mushaf.name))
                 throw new Error("A mushaf with same name exists!");
             }
         }else
@@ -267,7 +295,7 @@ class Mushafs extends policyManager{
         this.mushafs.forEach(func)
     }
     
-    select(selector){
+    pick(selector){
         if(typeof selector == 'number'){
             if(selector < 0 || selector > this.mushafs.length) return false;
             return this.mushafs[selector];
@@ -278,10 +306,10 @@ class Mushafs extends policyManager{
             let mushafs = false
             selector.forEach( s => {
                 if(typeof s == "string" || typeof s == "number"){
-                    let mushaf = this.select(s);
+                    let mushaf = this.pick(s);
                     if(mushaf){
                         if(mushafs){
-                            if(mushafs.select(mushaf.name) == false) mushafs.add(mushaf);
+                            if(mushafs.pick(mushaf.name) == false) mushafs.add(mushaf);
                         }else{
                             mushafs = new Mushafs();
                             mushafs.add(mushaf);
@@ -298,10 +326,13 @@ const tanzil = {}
 module.exports.tanzil = tanzil
 
 tanzil.loadFile = function(filePath){
+    let name = path.basename(filePath).replace(/\.[^.]+$/,'').replace(/^quran/,'tanzil')
+    let diyanet = name.startsWith('diyanet')
     let data = fs.readFileSync(filePath, "utf8");
     let lines = data.split('\n')
     let verses = []
     for(let i=0; i<114; i++) verses.push([]);
+    let basmala
     lines.forEach( line => {
         let splitVerse = line.split("|")
         if(splitVerse.length == 3){
@@ -313,18 +344,24 @@ tanzil.loadFile = function(filePath){
                 if(surahNo == 1 || surahNo == 9){
                     verses[surahNo-1].push(false)
                     verses[surahNo-1].push(verse)
+                    if(surahNo == 1) basmala = verse
                 }else{
-                    let split = verse.split(/(?<=^(?:[^ ]+ ){3}[^ ]+) /u)
-                    if(split.length != 2) throw new Error("Couldn't split basmala!");
-                    verses[surahNo-1].push(split[0])
-                    verses[surahNo-1].push(split[1])
+                    if(diyanet){
+                        verses[surahNo-1].push(basmala)
+                        verses[surahNo-1].push(verse)
+                    }else{
+                        let split = verse.split(/(?<=^(?:[^ ]+ ){3}[^ ]+) /u)
+                        if(split.length != 2) throw new Error("Couldn't split basmala!");
+                        verses[surahNo-1].push(split[0])
+                        verses[surahNo-1].push(split[1])
+                    }
                 }
             }else{
                 verses[surahNo-1].push(verse)
             }   
         }
     })
-    return new Mushaf(path.basename(filePath).replace(/\.[^.]+$/,'').replace(/^quran/,'tanzil'), verses);
+    return new Mushaf(name, verses);
 }
 
 tanzil.loadDir = function(dir){

@@ -17,16 +17,23 @@ const specialLetters = {
     '\u0625' : "ا", // ARABIC LETTER ALEF WITH HAMZA BELOW
     '\u0626' : "ي", // ARABIC LETTER YEH WITH HAMZA ABOVE
     '\u0671' : "ا", // ARABIC LETTER ALEF WASLA
-    
-    '\u0629' : abjadValues[21] + abjadValues[4], // ARABIC LETTER TEH MARBUTA
-    '\u0649' : abjadValues[0] + abjadValues[9], // ARABIC LETTER ALEF MAKSURA
+    //'\u0621' : 1,
+    '\u0629' :  abjadValues[4], // ARABIC LETTER TEH MARBUTA
+    '\u0649' :  abjadValues[9], // ARABIC LETTER ALEF MAKSURA
 }
+const letterMap = {}
+
 Object.keys(specialLetters).forEach( key => {
     if(typeof specialLetters[key] == 'string'){
         specialLetters[key] = abjadValues[letters.indexOf(specialLetters[key])]
     }
+    letterMap[key] = specialLetters[key]
+})
+letters.forEach( (letter, i) => {
+    letterMap[letter] = abjadValues[i]
 })
 
+// For debugging
 const ignore = [
     ' ', // Space 
     '\u0640', // ARABIC TATWEEL
@@ -40,6 +47,13 @@ const ignore = [
     '\u0652', // ARABIC SUKUN
     '\u0653', // ARABIC MADDAH ABOVE
     '\u0654', // ARABIC HAMZA ABOVE
+    '\u06d4', // ARABIC FULL STOP
+    '\u06d6', // ARABIC SMALL HIGH LIGATURE SAD WITH LAM WITH ALEF MAKSURA
+    '\u06d7', // ARABIC SMALL HIGH LIGATURE QAF WITH LAM WITH ALEF MAKSURA
+    '\u06d8', // ARABIC SMALL HIGH MEEM INITIAL FORM
+    '\u06d9', // ARABIC SMALL HIGH LAM ALEF
+    '\u06da', // ARABIC SMALL HIGH JEEM
+    '\u06db', // ARABIC SMALL HIGH THREE DOTS
     '\u06dc', // ARABIC SMALL HIGH SEEN
     '\u06df', // ARABIC SMALL HIGH ROUNDED ZERO
     '\u06e0', // ARABIC SMALL HIGH UPRIGHT RECTANGULAR ZERO
@@ -53,9 +67,10 @@ const ignore = [
     '\u06ec', // ARABIC ROUNDED HIGH STOP WITH FILLED CENTRE
     '\u06ed', // ARABIC SMALL LOW MEEM
     
-
-
-    '\u0621', // ARABIC LETTER HAMZA
+    '\u00a0', // !!!!!!!! NO-BREAK SPACE
+    '\u200c', // ZERO WIDTH NON-JOINER
+    '\u200e', // LEFT-TO-RIGHT MARK
+    '\u202f', // !!!!!!!!!!! NARROW NO-BREAK SPACE
     '\u0670', // ARABIC LETTER SUPERSCRIPT ALEF
 ]
 
@@ -67,30 +82,21 @@ function valToCodePoint(val){
 function calcAbjad(text){
     let val = 0;
     for(let i=0; i<text.length; i++){
-        let find = letters.indexOf(text.charAt(i));
-        if(find > -1){
-            val += abjadValues[find];
-        }else if(specialLetters[text.charAt(i)] != undefined){
-            val += specialLetters[text.charAt(i)]
-        }else if(ignore.indexOf(text.charAt(i)) == -1){
-            console.log("Unexpected: ", valToCodePoint(text.codePointAt(i)))
-        }
+        let find = letterMap[text.charAt(i)]
+        if(find) val += find;
     }
     return val
 }
 function countLetters(text){
     let val = 0;
     for(let i=0; i<text.length; i++){
-        let find = letters.indexOf(text.charAt(i));
-        if(find > -1){
-            val += 1
-        }
+        if(letterMap[text.charAt(i)]) val += 1;
     }
-    return val  
+    return val
 }
 
 function countWords(text){
-    return text.match(/(?<=[^\s]+)\s+(?=[^\s]+)/ug).length+1
+    return text.match(/(?<=\s+|^)[^\s]+(?=\s+|$)/ug).length
 }
 
 module.exports = {calcAbjad, countLetters, countWords}
