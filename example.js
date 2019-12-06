@@ -4,7 +4,6 @@ const {Num} = require('./types')
 let mushafs = mushaf.tanzil.loadDir("data/mushafs")
 mushaf.setPolicy("includeBasmalas", false)
 
-
 mushafs = mushafs.pick(['tanzil-simple-clean', 'tanzil-uthmani', 'tanzil-uthmani-min','diyanet-2', 'diyanet-3','diyanet-7'])
 mushafs.forEach( mushaf => {
     console.log("\n--------------------------------------------------------------------\n")

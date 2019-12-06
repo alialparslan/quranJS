@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/alialparslan/quranJS/issues"
   },
-  "homepage": "https://github.com/alialparslan/quranJS#readme"
+  "homepage": "https://github.com/alialparslan/quranJS#readme",
+  "dependencies": {
+    "theorem.js": "^1.2.0"
+  }
 }

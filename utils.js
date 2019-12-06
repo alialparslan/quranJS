@@ -107,7 +107,13 @@ module.exports = (customMap) => {
     let obj = {}
     if(customMap && typeof customMap == 'object'){
         obj.letterMap = {...letterMap}
-        Object.keys(customMap).forEach( letter => obj.letterMap[letter] = customMap[letter])
+        Object.keys(customMap).forEach( letter => {
+            if(customMap[letter] === false ){
+                delete obj.letterMap[letter]
+            }else{
+                obj.letterMap[letter] = customMap[letter]
+            }
+        })
     }else{
         obj.letterMap = letterMap
     }

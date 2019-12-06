@@ -1,26 +1,16 @@
+const t = require("theorem.js");
 
-function primeFactors(n){
-    var factors = [], 
-        divisor = 2;
-  
-    while(n>2){
-      if(n % divisor == 0){
-         factors.push(divisor); 
-         n= n/ divisor;
-      }
-      else{
-        divisor++;
-      }     
-    }
-    return factors;
-  }
+const cache = {}
+
 
 class Num extends Number{
     constructor(value){
         super(value)
     }
     primes(){
-        return primeFactors(this)
+        if(!cache[this])cache[this] = t.primeFactors(this)
+        return cache[this]
+        
     }
 
 }

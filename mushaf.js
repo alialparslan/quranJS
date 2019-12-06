@@ -1,12 +1,14 @@
 "use strict"
 const fs = require("fs");
 const path = require("path");
-const utils = require("./utils");
+const utils = require("./utils")();
 const {Num} = require("./types")
 
+//Default policies like settings applies inheritly unless child has a different policy for asked policy
 const policies = {
     // Whether basmalas without ayat number will be omitted or counted in calculations
     includeBasmalas : true,
+    utils: utils,
 }
 
 // Does not effects objects created before change
@@ -120,14 +122,14 @@ class Verse{
         this.no = no
         this.verse = verse
     }
-    abjad(){
-        return new Num(utils.calcAbjad(this.verse))
+    abjad(){ // this.getPolicy("utils")
+        return new Num(this.surah.getPolicy("utils").calcAbjad(this.verse))
     }
     letterCount(){
-        return new Num(utils.countLetters(this.verse))
+        return new Num(this.surah.getPolicy("utils").countLetters(this.verse))
     }
     wordCount(){
-        return new Num(utils.countWords(this.verse))
+        return new Num(this.surah.getPolicy("utils").countWords(this.verse))
     }
     search(text){
         return this.verse.search(text)
@@ -268,7 +270,7 @@ class Mushaf extends policyManager{
         }
         if(startVerse && startVerse > this.surahs[startSurah-1].count) throw new Error("Out of verse range");
         if(endVerse && endVerse > this.surahs[endSurah-1].count) throw new Error("Out of verse range");
-        console.log(startSurah,endSurah,startVerse,endVerse)
+        //console.log(startSurah,endSurah,startVerse,endVerse)
         if(!endSurah) return this.surahs[startSurah-1].getVerse(startVerse)
         return new verseRange(this, startSurah, startVerse, endSurah, endVerse)
     }
@@ -356,7 +358,7 @@ tanzil.loadFile = function(filePath){
                         verses[surahNo-1].push(split[1])
                     }
                 }
-            }else if(1 || surahNo != 9 || verses[surahNo-1].length < 128){
+            }else if(surahNo != 9 || verses[surahNo-1].length < 128){
                 verses[surahNo-1].push(verse)
             }   
         }
