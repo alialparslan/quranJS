@@ -1,7 +1,7 @@
 "use strict"
 const fs = require("fs");
 const path = require("path");
-const utils = require("./utils")();
+const utils = require("./utils")(); // Normaly no need to function call however i want utils to object type instead of function
 const {Num} = require("./types")
 
 //Default policies like settings applies inheritly unless child has a different policy for asked policy
@@ -122,17 +122,23 @@ class Verse{
         this.no = no
         this.verse = verse
     }
+    utils(){
+        return this.surah.getPolicy("utils")
+    }
     abjad(){ // this.getPolicy("utils")
-        return new Num(this.surah.getPolicy("utils").calcAbjad(this.verse))
+        return new Num(this.utils().calcAbjad(this.verse))
     }
     letterCount(){
-        return new Num(this.surah.getPolicy("utils").countLetters(this.verse))
+        return new Num(this.utils().countLetters(this.verse))
     }
     wordCount(){
-        return new Num(this.surah.getPolicy("utils").countWords(this.verse))
+        return new Num(this.utils().countWords(this.verse))
     }
     search(text){
         return this.verse.search(text)
+    }
+    letters(){
+        return this.utils().extractLetters(this.verse)
     }
 }
 
@@ -358,7 +364,7 @@ tanzil.loadFile = function(filePath){
                         verses[surahNo-1].push(split[1])
                     }
                 }
-            }else if(surahNo != 9 || verses[surahNo-1].length < 128){
+            }else if(1 || surahNo != 9 || verses[surahNo-1].length < 128){
                 verses[surahNo-1].push(verse)
             }   
         }

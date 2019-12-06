@@ -1,6 +1,6 @@
 {
   "name": "quranjs",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Utility that makes easier to access Quran verses and experimenting with verses and their attributes",
   "main": "index.js",
   "scripts": {
@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/alialparslan/quranJS#readme",
   "dependencies": {
+    "cli-table": "^0.3.1",
     "theorem.js": "^1.2.0"
   }
 }

@@ -17,7 +17,7 @@ const specialLetters = {
     '\u0625' : "ا", // ARABIC LETTER ALEF WITH HAMZA BELOW
     '\u0626' : "ي", // ARABIC LETTER YEH WITH HAMZA ABOVE
     '\u0671' : "ا", // ARABIC LETTER ALEF WASLA
-    '\u0621' : 1,
+    'ء' : 1,
     '\u0629' :  abjadValues[4], // ARABIC LETTER TEH MARBUTA
     '\u0649' :  abjadValues[9], // ARABIC LETTER ALEF MAKSURA
 }
@@ -90,21 +90,48 @@ function calcAbjad(text){
 function countLetters(text){
     let val = 0;
     for(let i=0; i<text.length; i++){
-        if(this.letterMap[text.charAt(i)]) val += 1;
+        if(this.letterMap[text.charAt(i)]){
+            val += 1;
+        }else if(this.debug && ignore.indexOf(text.charAt(i)) == -1){
+            console.log('Char not found:',valToCodePoint(text.charAt(i)))
+        }
     }
     return val
+}
+
+function extractLetters(text){
+    let letters = []
+    for(let i=0; i < text.length; i++){
+        if(this.letterMap[text.charAt(i)]){
+            letters.push(text.charAt(i))
+        }
+    }
+    return letters
 }
 
 function countWords(text){
     let count = 0;
     let match = text.match(/(?<=\s+|^)[^\s]+(?=\s+|$)/ug)
-    match.forEach( word => count += (this.calcAbjad(word) > 0) ? 1 : 0)
+    match.forEach( word => {
+        count += (this.calcAbjad(word) > 0) ? 1 : 0
+    })
     return count
 }
 
+
+const defaultModule = {
+    letterMap,
+    letters,
+    calcAbjad,
+    countLetters,
+    countWords,
+    extractLetters,
+    debug : false
+}
+
 // Overrides abjad values with user given ones
-module.exports = (customMap) => {
-    let obj = {}
+module.exports = (customMap, debug = false) => {
+    let obj = {...defaultModule}
     if(customMap && typeof customMap == 'object'){
         obj.letterMap = {...letterMap}
         Object.keys(customMap).forEach( letter => {
@@ -118,13 +145,8 @@ module.exports = (customMap) => {
         obj.letterMap = letterMap
     }
     obj.letters = Object.keys(obj.letterMap)
-    obj.calcAbjad = calcAbjad;
-    obj.countLetters = countLetters;
-    obj.countWords = countWords;
+    obj.debug = debug
     return obj;
 }
-module.exports.letterMap = letterMap
-module.exports.letters = Object.keys(letterMap)
-module.exports.calcAbjad = calcAbjad
-module.exports.countLetters = countLetters
-module.exports.countWords = countWords
+
+module.exports.__proto__ = defaultModule
