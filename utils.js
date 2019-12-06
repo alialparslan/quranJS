@@ -80,7 +80,6 @@ function valToCodePoint(val){
 }
 
 function calcAbjad(text){
-    console.log(this.letterMap)
     let val = 0;
     for(let i=0; i<text.length; i++){
         let find = this.letterMap[text.charAt(i)]
