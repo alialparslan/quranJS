@@ -1,5 +1,5 @@
 # Right now it is in development phase!
-**Warning: Current abjad calculator function not working properly because of characters like superscript Elif.**
+**I will probably won't complete documenatation soon even if i ever will. Check out examples if you are interested**
 
 You can request any functionality you want over [github](https://github.com/alialparslan/quranJS/labels/enhancement).
 
