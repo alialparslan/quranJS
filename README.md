@@ -1,4 +1,4 @@
-# Right now it is in development phase!
+# It's In Initial Developments Phase
 **I will probably won't complete documenatation soon even if i ever will. Check out examples if you are interested**
 
 You can request any functionality you want over [github](https://github.com/alialparslan/quranJS/labels/enhancement).
