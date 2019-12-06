@@ -2,7 +2,7 @@
 const mushaf = require(".").mushaf;
 const {Num} = require('./types')
 let mushafs = mushaf.tanzil.loadDir("data/mushafs")
-mushaf.setPolicy("includeBasmalas", true)
+mushaf.setPolicy("includeBasmalas", false)
 
 
 mushafs = mushafs.pick(['tanzil-simple-clean', 'tanzil-uthmani', 'tanzil-uthmani-min','diyanet-2', 'diyanet-3','diyanet-7'])
@@ -27,3 +27,4 @@ mushafs.forEach( mushaf => {
                 '; word count:', wordCount.valueOf(), wordCount.primes().join(' x '),
                 '; letter count:', letterCount.valueOf(), letterCount.primes().join(' x '))
 })
+

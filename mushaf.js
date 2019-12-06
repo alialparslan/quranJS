@@ -356,7 +356,7 @@ tanzil.loadFile = function(filePath){
                         verses[surahNo-1].push(split[1])
                     }
                 }
-            }else{
+            }else if(1 || surahNo != 9 || verses[surahNo-1].length < 128){
                 verses[surahNo-1].push(verse)
             }   
         }
