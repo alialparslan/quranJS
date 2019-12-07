@@ -101,50 +101,8 @@ class verseRange extends Container{
         this.updateCount()
     }
 
-    updateCountX(){
-        let includeBasmalas = this.getPolicy("includeBasmalas")
-        this.count = this.mushaf.surahs[this.startSurah-1].count-this.startVerse+1
-        if(this.startSurah == this.endSurah) this.count 
-        if(!includeBasmalas && this.startVerse == 0) this.count--;
-        for(let i = this.startSurah+1; i < this.endSurah; i++){
-            console.log(i)
-            this.count += this.mushaf.surahs[i-1].count
-            if(includeBasmalas && (i != 1 && i != 9)) this.count++;
-        }
-        if(this.endSurah > this.startSurah){
-            if(includeBasmalas && this.endSurah != 1 && this.endSurah != 9) this.count++;
-            this.count += this.endVerse;
-        }
-    }
-
     updateCount(){
         this.count = this.forEach()
-    }
-
-    // Will be called with arguments: Verse, surahNo, verseNo
-    forEach2(func){
-        let includeBasmalas = this.getPolicy("includeBasmalas")
-        let surah = this.mushaf.getSurah(this.startSurah)
-        let startVerse = this.startVerse
-        if(startVerse == 0 && !includeBasmalas) startVerse++;
-        for(let i = startVerse; i <= surah.count ; i++){
-            func(surah.getVerse(i), surah.no, i)
-        }
-        for(let i = this.startSurah+1; i < this.endSurah; i++){
-            surah = this.mushaf.getSurah(i)
-            if(includeBasmalas && surah.getVerse(0)) func(surah.getVerse, i, 0)
-            for(let v =1; v <= surah.count; v++){
-                func(surah.getVerse(v), i, v)
-            }
-        }
-        if(this.endSurah > this.startSurah){
-            let surah = this.mushaf.getSurah(this.endSurah)
-            let v = 1;
-            if(includeBasmalas && surah.getVerse(0)) v = 0;
-            for(; v <= this.endVerse; v++){
-                func(surah.getVerse(v), this.endSurah, v)
-            }
-        }
     }
 
     forEach(func){
@@ -154,18 +112,17 @@ class verseRange extends Container{
         let count = 0
         let surah = this.mushaf.getSurah(curSurah)
         while(curSurah < this.endSurah || (curSurah == this.endSurah && curVerse <= this.endVerse)){
+            if(!surah) surah = this.mushaf.getSurah(curSurah)
             let verse = surah.getVerse(curVerse)
             if(curVerse != 0 || verse && includeBasmalas){
                 func && func(verse,curSurah, curVerse)
                 count++
-            }else{
-                console.log("skipping: ",curSurah, curVerse, verse)
             }
             curVerse++
             if(curVerse > surah.count){
                 curSurah++
-                surah = this.mushaf.getSurah(curSurah)
                 curVerse = 0
+                surah = false
             }
         }
         return count
