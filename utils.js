@@ -1,3 +1,5 @@
+const {Frequencies} = require('./types');
+
 const letters=[
     //0   1    2    3    4    5    6    7    8    9    10   11   12   13  14   15   16   17
     "ا", "ب", "ج", "د", "ه", "و", "ز", "ح", "ط", "ي", "ك", "ل", "م", "ن", "س", "ع", "ف", "ص",
@@ -118,6 +120,16 @@ function countWords(text){
     return count
 }
 
+function letterFrequencies(text, to){
+    let instance = to ? to : new Frequencies()
+    for(let i=0; i < text.length; i++){
+        if(this.letterMap[text.charAt(i)]){
+            instance.increase(text.charAt(i))
+        }
+    }
+    return instance
+}
+
 
 const defaultModule = {
     letterMap,
@@ -126,6 +138,7 @@ const defaultModule = {
     countLetters,
     countWords,
     extractLetters,
+    letterFrequencies,
     debug : false
 }
 

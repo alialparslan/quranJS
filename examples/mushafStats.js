@@ -1,7 +1,6 @@
 "use strict"
 var Table = require('cli-table');
 const mushaf = require("..").mushaf;
-const {Num} = require('../types')
 let mushafs = mushaf.tanzil.loadDir("data/mushafs")
 
 

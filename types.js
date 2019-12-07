@@ -52,6 +52,7 @@ class Num extends Number{
         super(value)
     }
     primes(){
+        if(this < 2) return [2]
         if(!cache[this])cache[this] = new Factors(t.primeFactors(this))
         return cache[this]
         
@@ -59,4 +60,26 @@ class Num extends Number{
 
 }
 
-module.exports = {Num}
+class Frequencies{
+    constructor(initWith){
+        this.data = {}
+        initWith && this.update(initWith)
+    }
+    update(data){
+        Object.keys(data).forEach( letter => {
+            if(this.data[letter]){
+                this.data[letter] += data[letter]
+            }else{
+                this.data[letter] = data[letter]
+            }
+        })
+    }
+    increase(letter){
+        this.data[letter] = this.data[letter] ? this.data[letter]+1 : 1
+    }
+    get(){
+        Object.keys(this.data).forEach( letter => {this.data[letter] = new Num(this.data[letter])})
+        return this.data
+    }
+}
+module.exports = {Num, Frequencies}

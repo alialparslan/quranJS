@@ -2,7 +2,7 @@
 const fs = require("fs");
 const path = require("path");
 const utils = require("./utils")(); // Normaly no need to function call however i want utils to object type instead of function
-const {Num} = require("./types")
+const {Num, Frequencies} = require("./types")
 
 //Default policies like settings applies inheritly unless child has a different policy for asked policy
 const policies = {
@@ -49,6 +49,38 @@ class policyManager{
     }
 }
 
+class Container extends policyManager{
+    constructor(){
+        super()
+    }
+    abjad(){
+        let total = 0
+        this.forEach(node => total += node.abjad())
+        return new Num(total)
+    }
+    letterCount(){
+        let val = 0
+        this.forEach(node => val += node.letterCount())
+        return new Num(val)
+    }
+    wordCount(){
+        let val = 0
+        this.forEach(node => val += node.wordCount())
+        return new Num(val)
+    }
+    search(text, arr = []){
+        this.forEach( verse => {
+            if(verse.search(text) != -1) arr.push(verse)
+        })
+        return arr
+    }
+    letterFrequencies(instance){
+        if(!instance) instance = new Frequencies()
+        this.forEach(node => node.letterFrequencies(instance))
+        return instance
+    }
+}
+
 
 // For search matches
 class Match{
@@ -58,7 +90,7 @@ class Match{
     }
 }
 
-class verseRange extends policyManager{
+class verseRange extends Container{
     constructor(mushaf, startSurah, startVerse, endSurah, endVerse){
         super()
         this.mushaf = mushaf
@@ -69,11 +101,13 @@ class verseRange extends policyManager{
         this.updateCount()
     }
 
-    updateCount(){
+    updateCountX(){
         let includeBasmalas = this.getPolicy("includeBasmalas")
         this.count = this.mushaf.surahs[this.startSurah-1].count-this.startVerse+1
+        if(this.startSurah == this.endSurah) this.count 
         if(!includeBasmalas && this.startVerse == 0) this.count--;
         for(let i = this.startSurah+1; i < this.endSurah; i++){
+            console.log(i)
             this.count += this.mushaf.surahs[i-1].count
             if(includeBasmalas && (i != 1 && i != 9)) this.count++;
         }
@@ -83,8 +117,12 @@ class verseRange extends policyManager{
         }
     }
 
+    updateCount(){
+        this.count = this.forEach()
+    }
+
     // Will be called with arguments: Verse, surahNo, verseNo
-    forEach(func){
+    forEach2(func){
         let includeBasmalas = this.getPolicy("includeBasmalas")
         let surah = this.mushaf.getSurah(this.startSurah)
         let startVerse = this.startVerse
@@ -109,10 +147,28 @@ class verseRange extends policyManager{
         }
     }
 
-    abjad(){
-        let total = 0
-        this.forEach( verse => total += verse.abjad())
-        return new Num(total)
+    forEach(func){
+        let includeBasmalas = this.getPolicy("includeBasmalas")
+        let curSurah = this.startSurah
+        let curVerse = this.startVerse
+        let count = 0
+        let surah = this.mushaf.getSurah(curSurah)
+        while(curSurah < this.endSurah || (curSurah == this.endSurah && curVerse <= this.endVerse)){
+            let verse = surah.getVerse(curVerse)
+            if(curVerse != 0 || verse && includeBasmalas){
+                func && func(verse,curSurah, curVerse)
+                count++
+            }else{
+                console.log("skipping: ",curSurah, curVerse, verse)
+            }
+            curVerse++
+            if(curVerse > surah.count){
+                curSurah++
+                surah = this.mushaf.getSurah(curSurah)
+                curVerse = 0
+            }
+        }
+        return count
     }
 }
 
@@ -140,9 +196,13 @@ class Verse{
     letters(){
         return this.utils().extractLetters(this.verse)
     }
+    letterFrequencies(instance){
+        return this.utils().letterFrequencies(this.verse, instance)
+    }
 }
 
-class Surah extends policyManager{
+
+class Surah extends Container{
     constructor(mushaf, no, verses){
         super()
         this.mushaf = mushaf
@@ -170,31 +230,10 @@ class Surah extends policyManager{
             func(this.verses[i], this.no, i)
         }
     }
-    // There is no validity check for params
-    abjad(firstVerse = 0, lastVerse){
-        let total = 0
-        this.forEach(verse => total += verse.abjad(), firstVerse, lastVerse)
-        return new Num(total)
-    }
-    letterCount(){
-        let val = 0
-        this.forEach(verse => val += verse.letterCount())
-        return new Num(val)
-    }
-    wordCount(){
-        let val = 0
-        this.forEach(verse => val += verse.wordCount())
-        return new Num(val)
-    }
-    search(text, arr = []){
-        this.forEach( verse => {
-            if(verse.search(text) != -1) arr.push(verse)
-        })
-        return arr
-    }
+
 }
 
-class Mushaf extends policyManager{
+class Mushaf extends Container{
     constructor(name, verses){
         super()
         this.name = name
@@ -213,25 +252,6 @@ class Mushaf extends policyManager{
         this.surahs.forEach( (surah, i) => {
             func(surah)
         })
-    }
-    abjad(){
-        let val = 0
-        this.forEach( surah => val += surah.abjad())
-        return new Num(val)
-    }
-    letterCount(){
-        let val = 0
-        this.forEach(surah => val += surah.letterCount())
-        return new Num(val)
-    }
-    wordCount(){
-        let val = 0
-        this.forEach(surah => val += surah.wordCount())
-        return new Num(val)
-    }
-    search(text, arr = []){
-        this.forEach( surah => surah.search(text, arr))
-        return arr
     }
 
     select(selector){
