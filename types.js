@@ -1,4 +1,5 @@
 const t = require("theorem.js");
+const printers = require("./printers");
 
 const cache = {}
 
@@ -56,6 +57,13 @@ class Num extends Number{
         if(!cache[this])cache[this] = new Factors(t.primeFactors(this))
         return cache[this]
         
+    }
+    toString(specifiers){
+        if(specifiers && typeof specifiers == "string"){
+            return printers.print(this, specifiers);
+        }else{
+            return this.valueOf().toString();
+        }
     }
 
 }

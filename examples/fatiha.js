@@ -4,6 +4,7 @@ const mushaf = require("..").mushaf;
 
 let mushafs = mushaf.tanzil.loadDir("data/mushafs")
 
+let format = "raw\nfactors";
 
 mushafs = mushafs.pick(['tanzil-simple-clean', 'tanzil-uthmani', 'tanzil-uthmani-min','diyanet-2', 'diyanet-3','diyanet-7'])
 mushafs.forEach(mushaf => {
@@ -15,9 +16,9 @@ mushafs.forEach(mushaf => {
         let wordCount = verse.wordCount()
         let letterCount = verse.letterCount()
         table.push([verse.no,
-                    abjad.valueOf()+'\n'+abjad.primes().toString(),
-                    wordCount.valueOf()+'\n'+wordCount.primes().toString(),
-                    letterCount.valueOf()+'\n'+letterCount.primes().toString(),
+                    abjad.toString(format),
+                    wordCount.toString(format),
+                    letterCount.toString(format),
                     verse.letters().join(',')
                 ])
     })
@@ -26,9 +27,9 @@ mushafs.forEach(mushaf => {
     let letterCount = fatiha.letterCount()
     table.push([
                 "Total",
-                abjad.valueOf()+'\n'+abjad.primes().toString(),
-                wordCount.valueOf()+'\n'+wordCount.primes().toString(),
-                letterCount.valueOf()+'\n'+letterCount.primes().toString()
+                abjad.toString(format),
+                wordCount.toString(format),
+                letterCount.toString(format)
             ])
     console.log(table.toString())
 

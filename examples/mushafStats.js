@@ -4,8 +4,6 @@ const mushaf = require("..").mushaf;
 let mushafs = mushaf.tanzil.loadDir("data/mushafs")
 
 
-
-
 mushaf.setPolicy("includeBasmalas", false)
 
 let startedAt = Date.now()
@@ -29,6 +27,8 @@ let policySets = {
     }
 }
 
+let format = "raw\nfactors\nmod_19";
+
 mushafs = mushafs.pick(['tanzil-simple-clean', 'tanzil-uthmani', 'tanzil-uthmani-min','diyanet-2', 'diyanet-3','diyanet-7'])
 Object.keys(policySets).forEach( setName => {
     let set = policySets[setName]
@@ -46,15 +46,14 @@ Object.keys(policySets).forEach( setName => {
         let letterCount = mushaf.letterCount()
         table.push([
             mushaf.name,
-            abjad.valueOf() + '\n' + abjad.primes().toString(),
-            wordCount.valueOf() + '\n' + wordCount.primes().toString(),
-            letterCount.valueOf() + '\n' + letterCount.primes().toString()
+            abjad.toString(format),
+            wordCount.toString(format),
+            letterCount.toString(format)
         ])
         /*console.log(mushaf.name + ':', " total:", abjad.valueOf(), abjad.primes().join(' x '), 
                     '; word count:', wordCount.valueOf(), wordCount.primes().join(' x '),
                     '; letter count:', letterCount.valueOf(), letterCount.primes().join(' x '))*/
     })
-    //console.log('----------------------------------------------------------------------')
     console.log(table.toString())
 })
 
