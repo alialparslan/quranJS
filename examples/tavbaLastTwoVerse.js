@@ -8,7 +8,8 @@ let utilsWithoutHamza = require('../utils')({'ء' : false})
 
 let mushafs = mushaf.tanzil.loadDir("data/mushafs")
 
-//mushaf.setPolicy("utils", utilsWithoutHamza)
+
+mushaf.setPolicy("utils", utilsWithoutHamza)
 
 let format = "raw\nfactors"
 
