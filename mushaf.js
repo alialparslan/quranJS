@@ -53,6 +53,11 @@ class Container extends policyManager{
     constructor(){
         super()
     }
+    count(){
+        let total = 0;
+        this.forEach(child => { total += child.count()})
+        return total;
+    }
     abjad(){
         let total = 0
         this.forEach(node => total += node.abjad())
@@ -82,7 +87,7 @@ class Container extends policyManager{
 }
 
 
-// For search matches
+// For search matches, not implemented yet :(
 class Match{
     constructor(verse, count){
         this.verse = verse
@@ -90,7 +95,7 @@ class Match{
     }
 }
 
-class verseRange extends Container{
+class VerseRange extends Container{
     constructor(mushaf, startSurah, startVerse, endSurah, endVerse){
         super()
         this.mushaf = mushaf
@@ -119,7 +124,7 @@ class verseRange extends Container{
                 count++
             }
             curVerse++
-            if(curVerse > surah.count){
+            if(curVerse > surah.lastChild){
                 curSurah++
                 curVerse = 0
                 surah = false
@@ -171,7 +176,14 @@ class Surah extends Container{
                 this.verses[i] = new Verse(this, i, this.verses[i]);
             }
         }
-        this.count = verses.length-1 // -1 for numberless verse
+        this.lastChild = this.verses.length-1;
+    }
+    count(){
+        if(this.verses[0] && this.getPolicy("includeBasmalas")){
+            return this.verses.length;
+        }else{
+            return this.verses.length-1;
+        }
     }
     getVerse(no){
         if(no > this.count) throw new Error("Out of verse range!");
@@ -179,7 +191,7 @@ class Surah extends Container{
     }
     // func will called with arguments: Verse, surahNo, verseNo
     forEach(func, firstVerse = 0, lastVerse){
-        if(lastVerse == undefined) lastVerse = this.count;
+        if(lastVerse == undefined) lastVerse = this.verses.length-1;
         if(firstVerse < 0) throw new Error("first verse number has to be greater than zero!")
         let includeBasmalas = this.getPolicy("includeBasmalas")
         if(firstVerse == 0 && ( !includeBasmalas || this.no == 1 || this.no == 9)) firstVerse = 1;
@@ -200,15 +212,19 @@ class Mushaf extends Container{
         })
     }
     
+    count(){
+        let total = 0;
+        this.forEach( surah => {total += surah.count()})
+        return total;
+    }
+
     getSurah(no){
         if(no < 1 || no > 114) throw new Error("Surah not found!");
         return this.surahs[no-1]
     }
     
     forEach(func){
-        this.surahs.forEach( (surah, i) => {
-            func(surah)
-        })
+        this.surahs.forEach( (surah, i) => func(surah, i))
     }
 
     select(selector){
@@ -240,7 +256,7 @@ class Mushaf extends Container{
             }
             if(endSurah < startSurah) throw new Error("Starting Surah no cannot be greater than ending!");
             
-            if(endVerse === false) endVerse = this.surahs[endSurah-1].count;
+            if(endVerse === false) endVerse = this.surahs[endSurah-1].lastChild;
             
             if(startSurah == endSurah){
                 if(startVerse > endVerse) throw new Error("Ending verse number has to be greater than starting verse in case where ending and starting surahs are same!")
@@ -251,11 +267,11 @@ class Mushaf extends Container{
             }
             
         }
-        if(startVerse && startVerse > this.surahs[startSurah-1].count) throw new Error("Out of verse range");
-        if(endVerse && endVerse > this.surahs[endSurah-1].count) throw new Error("Out of verse range");
+        if(startVerse && startVerse > this.surahs[startSurah-1].lastChild) throw new Error("Out of verse range");
+        if(endVerse && endVerse > this.surahs[endSurah-1].lastChild) throw new Error("Out of verse range");
         //console.log(startSurah,endSurah,startVerse,endVerse)
         if(!endSurah) return this.surahs[startSurah-1].getVerse(startVerse)
-        return new verseRange(this, startSurah, startVerse, endSurah, endVerse)
+        return new VerseRange(this, startSurah, startVerse, endSurah, endVerse)
     }
 }
 

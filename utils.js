@@ -92,7 +92,7 @@ function calcAbjad(text){
 function countLetters(text){
     let val = 0;
     for(let i=0; i<text.length; i++){
-        if(this.letterMap[text.charAt(i)]){
+        if(this.letterMap[text.charAt(i)] != undefined){
             val += 1;
         }else if(this.debug && ignore.indexOf(text.charAt(i)) == -1){
             console.log('Char not found:',valToCodePoint(text.charAt(i)))

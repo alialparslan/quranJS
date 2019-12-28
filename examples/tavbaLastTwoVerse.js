@@ -4,8 +4,13 @@ const mushaf = require("..").mushaf;
 const Num = require("../types").Num;
 const factorsToString = require('../utils').factorsToString
 
+let utilsWithoutHamza = require('../utils')({'ء' : false})
+
 let mushafs = mushaf.tanzil.loadDir("data/mushafs")
 
+//mushaf.setPolicy("utils", utilsWithoutHamza)
+
+let format = "raw\nfactors"
 
 mushafs = mushafs.pick(['tanzil-simple-clean', 'tanzil-uthmani', 'tanzil-uthmani-min','diyanet-2', 'diyanet-3','diyanet-7'])
 mushafs.forEach(mushaf => {
@@ -18,9 +23,9 @@ mushafs.forEach(mushaf => {
         let wordCount = verse.wordCount()
         let letterCount = verse.letterCount()
         table.push([verse.no,
-                    abjad.valueOf()+'\n'+abjad.primes().toString(),
-                    wordCount.valueOf()+'\n'+wordCount.primes().toString(),
-                    letterCount.valueOf()+'\n'+letterCount.primes().toString()
+                    abjad.toString(format),
+                    wordCount.toString(format),
+                    letterCount.toString(format)
                 ])
     })
     let abjad = verses.abjad()
@@ -28,9 +33,9 @@ mushafs.forEach(mushaf => {
     let letterCount = verses.letterCount()
     table.push([
                 "Total",
-                abjad.valueOf()+'\n'+abjad.primes().toString(),
-                wordCount.valueOf()+'\n'+wordCount.primes().toString(),
-                letterCount.valueOf()+'\n'+letterCount.primes().toString()
+                abjad.toString(format),
+                wordCount.toString(format),
+                letterCount.toString(format)
             ])
     console.log(table.toString())
 

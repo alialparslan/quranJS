@@ -49,14 +49,20 @@ printers.factors = function(obj){
 }
 
 printers.mod = function(obj, modOf){
+    if(!modOf) return false;
     return modOf + '%:' +obj % modOf;
 }
 
 
 exports.print = function(obj, format){
     Object.keys(printers).forEach( key =>{
-        format = format.replace(new RegExp(key+'(?:_([a-zA-Z0-9]+))?', "g"), (_, contents) => {
-            return printers[key](obj, contents)
+        format = format.replace(new RegExp(key+'(?:_([a-zA-Z0-9]+))?', "g"), (match, contents) => {
+            let output = printers[key](obj, contents)
+            if(!output){
+                return match;
+            }else{
+                return output;
+            }
         });
     })
     return format;
