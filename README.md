@@ -1,4 +1,5 @@
 **I will probably won't complete documenatation soon. If i will ever though. Check out examples if you are interested**
+**It is experimental especially word count function does not work properly. Rest is probably fine though.**
 
     npm install quranjs
 
@@ -16,7 +17,7 @@ Classes that extends Container class which also extends policyManager.
 You can set policiy at any container or you can directly change modules defaults with setPolicy. Any container which does not have a policy set will recursively use parents. By default there is no policy set for any object so module defaults will be used.
 
 ##### Container methods:
-* **count**: counts of childs which whatever the object is container of (Verses for Surah and VerseRange or Surahs for Mushaf). Returns number.
+* **count**: counts of verses in it if it is verse container or in its childs if its chids are also container.
 * **abjad**: Total abjad value of its childs. Returns Num.
 * **letterCount**: Total letter count of its childs. Returns Num.
 * **wordCount**: Total word count of its childs. Returns Num.
