@@ -82,12 +82,19 @@ class Frequencies{
             }
         })
     }
-    increase(letter){
-        this.data[letter] = this.data[letter] ? this.data[letter]+1 : 1
+    increase(key){
+        if(this.data[key] !== undefined){
+            this.data[key] = new Num(this.data[key] + 1)
+        }else{
+            this.data[key] = new Num(1)
+        }
     }
-    get(){
-        Object.keys(this.data).forEach( letter => {this.data[letter] = new Num(this.data[letter])})
-        return this.data
+    get(key){
+        //Object.keys(this.data).forEach( letter => {this.data[letter] = new Num(this.data[letter])})
+        if(key !== undefined)
+            return this.data[key]
+        else
+            return this.data
     }
 }
 module.exports = {Num, Frequencies}
