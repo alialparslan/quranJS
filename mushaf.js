@@ -86,7 +86,6 @@ class Container extends policyManager{
     }
 }
 
-
 // For search matches, not implemented yet :(
 class Match{
     constructor(verse, count){
@@ -103,11 +102,10 @@ class VerseRange extends Container{
         this.endSurah = endSurah
         this.startVerse = startVerse
         this.endVerse = endVerse
-        this.updateCount()
     }
 
-    updateCount(){
-        this.count = this.forEach()
+    count(){
+        return this.forEach()
     }
 
     forEach(func){
@@ -323,6 +321,8 @@ class Mushafs extends policyManager{
     }
 }
 
+
+/////////////// Loaders ///////////////
 const tanzil = {}
 module.exports.tanzil = tanzil
 
