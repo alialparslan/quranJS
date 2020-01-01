@@ -6,7 +6,11 @@
 Currently this api only works with [tanzil files](http://tanzil.net/download). "Text (with aya numbers)" option has to be selected when downloading.
 Currently this api is just for original Quran. In context of this package Quran translations are not relavent.
 ### Classes
-* **Mushafs**: Holds Mushaf objects. It has forEach method which calls function with mushafs in it but it does not extends Container because many call would be meaningless. Extends policiy manager. Has no parent. Has pick function which returns new Mushafs object from selected mushafs.
+* **Verse**: Represents single verse.
+* * Has abjad, letterCount, wordCount functions like Containers.
+* * **text()**: Returns raw arabic text as taken from the original file.
+* * **letters()**: Returns letters of verse in array.
+* * **letterFrequencies()**: Returns Frequencies object represents frequency of how many time each arabic letter take place in verse.
 
 ### Container Classes
 Classes that extends Container class which also extends policyManager.
@@ -23,6 +27,7 @@ You can set policiy at any container or you can directly change modules defaults
 * **wordCount**: Total word count of its childs. Returns Num.
 * **search**: Not implemented yet. // Returns Match object.
 * **letterFrequencies**: How many are there of each letter. Returns Frequencies object.
+* **forEach(func)**: Iterates over all childs and runs provided function. 
 
 ### Types
 * **Factors**: Stores primes of a factorized number. Has a proper toString method. Outputs factors like `2^5 x 3x3 x 7`

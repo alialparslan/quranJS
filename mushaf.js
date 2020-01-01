@@ -138,29 +138,31 @@ class Verse{
         this.no = no
         this.verse = verse
     }
-    utils(){
+    get utils(){
         return this.surah.getPolicy("utils")
     }
-    abjad(){ // this.getPolicy("utils")
-        return new Num(this.utils().calcAbjad(this.verse))
+    text(){
+        return this.verse
+    }
+    abjad(){
+        return new Num(this.utils.calcAbjad(this.verse))
     }
     letterCount(){
-        return new Num(this.utils().countLetters(this.verse))
+        return new Num(this.utils.countLetters(this.verse))
     }
     wordCount(){
-        return new Num(this.utils().countWords(this.verse))
+        return new Num(this.utils.countWords(this.verse))
     }
     search(text){
         return this.verse.search(text)
     }
     letters(){
-        return this.utils().extractLetters(this.verse)
+        return this.utils.extractLetters(this.verse)
     }
     letterFrequencies(instance){
-        return this.utils().letterFrequencies(this.verse, instance)
+        return this.utils.letterFrequencies(this.verse, instance)
     }
 }
-
 
 class Surah extends Container{
     constructor(mushaf, no, verses){
