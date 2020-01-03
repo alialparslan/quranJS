@@ -44,6 +44,7 @@ class Factors extends Array{
         if(value && Array.isArray(value)) value.forEach( e => this.push(e.valueOf()))
     }
     toString(){
+        if(this.length == 0) return '-';
         return factorsToString(this)
     }
 }
@@ -53,7 +54,7 @@ class Num extends Number{
         super(value)
     }
     primes(){
-        if(this < 2) return [2]
+        if(this < 2) return new Factors([]);
         if(!cache[this])cache[this] = new Factors(t.primeFactors(this))
         return cache[this]
         

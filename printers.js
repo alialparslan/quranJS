@@ -13,39 +13,7 @@ printers.raw = function(obj){
 }
 
 printers.factors = function(obj){
-    let factors = obj.primes();
-    let str = '';
-    let lastFactor = false
-    let power = 1
-    factors.forEach(factor => {
-        factor = factor.valueOf()
-        if (factor == lastFactor){
-            power += 1
-        }else{
-            if(power > 1){
-                if(power == 2){
-                    str += 'x' + lastFactor
-                }else if(power == 3){
-                    str += 'x' + lastFactor + 'x' + lastFactor
-                }else{
-                    str += '^' + power
-                }
-                power = 1
-            }
-            str += str != '' ? ' x ' + factor : factor
-            lastFactor = factor
-        }
-    })
-    if(power > 1){
-        if(power == 2){
-            str += 'x' + lastFactor
-        }else if(power == 3){
-            str += 'x' + lastFactor + 'x' + lastFactor
-        }else{
-            str += '^' + power
-        }
-    }
-    return str
+    return obj.primes().toString();
 }
 
 printers.mod = function(obj, modOf){
