@@ -7,16 +7,17 @@ let mushafs = mushaf.tanzil.loadDir("data/mushafs")
 
 mushaf.setPolicy('includeBasmalas', true)
 
-const selectedPrimes = [11,13,17,19,23,29,37]
+const selectedPrimes = [11,13,17,19,23,29,37,131]
 
 mushafs = mushafs.pick(['tanzil-simple-clean', 'tanzil-uthmani', 'tanzil-uthmani-min','diyanet-2', 'diyanet-3','diyanet-7'])
 
+// 131 is prime factor of abjad value of basmala
 
 mushafs.forEach(mushaf => {
     let allVerses = mushaf.select("1-114")
     let verseCount = allVerses.count()
     console.log(mushaf.name+':')
-    console.log("Verse count:", verseCount)
+    console.log("Verse count:", (new Num(verseCount)).toString("raw, Factors: factors"))
     let attributes = ['abjad', 'letterCount', 'wordCount']
     attributes.forEach( attribute => {
         console.log("",attribute+':')

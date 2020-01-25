@@ -162,6 +162,9 @@ class Verse{
     letterFrequencies(instance){
         return this.utils.letterFrequencies(this.verse, instance)
     }
+    count(){ // Internally this is not needed
+        return 1;
+    }
 }
 
 class Surah extends Container{

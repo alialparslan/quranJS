@@ -45,6 +45,7 @@ class Factors extends Array{
     }
     toString(){
         if(this.length == 0) return '-';
+        //if(this.length == 1) return t.primePi(this[0]) + 'th Prime' // Very slow
         return factorsToString(this)
     }
 }
